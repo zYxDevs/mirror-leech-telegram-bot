@@ -4,7 +4,7 @@ from os import environ
 
 DOWNLOAD_DIR = environ.get('DOWNLOAD_DIR')
 if not DOWNLOAD_DIR.endswith("/"):
-    DOWNLOAD_DIR = DOWNLOAD_DIR + '/'
+    DOWNLOAD_DIR = f'{DOWNLOAD_DIR}/'
 
 
 class TorNode(NodeMixin):
@@ -28,7 +28,7 @@ def qb_get_folders(path):
     return path.split("/")
 
 def get_folders(path):
-    fs = re_findall(DOWNLOAD_DIR + r'[0-9]+/(.+)', path)[0]
+    fs = re_findall(f'{DOWNLOAD_DIR}[0-9]+/(.+)', path)[0]
     return fs.split('/')
 
 def make_tree(res, aria2=False):
@@ -39,11 +39,15 @@ def make_tree(res, aria2=False):
             if len(folders) > 1:
                 previous_node = parent
                 for j in range(len(folders)-1):
-                    current_node = None
-                    for k in previous_node.children:
-                        if k.name == folders[j]:
-                            current_node = k
-                            break
+                    current_node = next(
+                        (
+                            k
+                            for k in previous_node.children
+                            if k.name == folders[j]
+                        ),
+                        None,
+                    )
+
                     if current_node is None:
                         previous_node = TorNode(folders[j], parent=previous_node, is_folder=True)
                     else:
@@ -60,11 +64,15 @@ def make_tree(res, aria2=False):
             if len(folders) > 1:
                 previous_node = parent
                 for j in range(len(folders)-1):
-                    current_node = None
-                    for k in previous_node.children:
-                        if k.name == folders[j]:
-                            current_node = k
-                            break
+                    current_node = next(
+                        (
+                            k
+                            for k in previous_node.children
+                            if k.name == folders[j]
+                        ),
+                        None,
+                    )
+
                     if current_node is None:
                         previous_node = TorNode(folders[j], parent=previous_node, is_folder=True)
                     else:

@@ -159,7 +159,7 @@ class TgUploader:
         if self.__thumb is None and thumb is not None and ospath.lexists(thumb):
             osremove(thumb)
         if not self.__is_cancelled and \
-                   (not self.__listener.seed or self.__listener.newDir or dirpath.endswith("splited_files_mltb")):
+                       (not self.__listener.seed or self.__listener.newDir or dirpath.endswith("splited_files_mltb")):
             try:
                 osremove(up_path)
             except:
@@ -176,8 +176,7 @@ class TgUploader:
 
     def __user_settings(self):
         user_id = self.__listener.message.from_user.id
-        user_dict = user_data.get(user_id, False)
-        if user_dict:
+        if user_dict := user_data.get(user_id, False):
             self.__as_doc = user_dict.get('as_doc', False)
         if not ospath.lexists(self.__thumb):
             self.__thumb = None

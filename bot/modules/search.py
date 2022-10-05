@@ -15,8 +15,7 @@ from bot.helper.ext_utils.html_helper import html_template
 if SEARCH_PLUGINS is not None:
     PLUGINS = []
     qbclient = get_client()
-    qb_plugins = qbclient.search_plugins()
-    if qb_plugins:
+    if qb_plugins := qbclient.search_plugins():
         for plugin in qb_plugins:
             qbclient.search_uninstall_plugin(names=plugin['name'])
     qbclient.search_install_plugin(SEARCH_PLUGINS)

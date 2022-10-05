@@ -33,10 +33,7 @@ def _ytdl(bot, message, isZip=False, isLeech=False):
 
     name = mssg.split('|', maxsplit=1)
     if len(name) > 1:
-        if 'opt: ' in name[0] or 'pswd: ' in name[0]:
-            name = ''
-        else:
-            name = name[1]
+        name = '' if 'opt: ' in name[0] or 'pswd: ' in name[0] else name[1]
         if name != '':
             name = re_split('pswd:|opt:', name)[0]
             name = name.strip()
@@ -100,7 +97,7 @@ Check all arguments from this <a href='https://github.com/yt-dlp/yt-dlp/blob/mas
         result = ydl.extractMetaData(link, name, opt, True)
     except Exception as e:
         msg = str(e).replace('<', ' ').replace('>', ' ')
-        return sendMessage(tag + " " + msg, bot, message)
+        return sendMessage(f"{tag} {msg}", bot, message)
     formats_dict = {}
     if 'entries' in result:
         for i in ['144', '240', '360', '480', '720', '1080', '1440', '2160']:
