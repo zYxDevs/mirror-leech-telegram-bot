@@ -315,15 +315,6 @@ class Mirror(TaskListener):
                         self.removeFromSameDir()
                         return
 
-        if (
-            is_magnet(self.link)
-            or self.link.endswith(".torrent")
-            or "torrent" in str(self.link)
-            or int(self.message.chat.id) != int(OWNER_ID)
-        ):
-            await sendMessage(self.message, "No magnet/torrent allowed!")
-            return
-
         if file_ is not None:
             await TelegramDownloadHelper(self).add_download(
                 reply_to, f"{path}/", session
@@ -348,6 +339,13 @@ class Mirror(TaskListener):
             await add_rclone_download(self, f"{path}/")
         elif is_gdrive_link(self.link) or is_gdrive_id(self.link):
             await add_gd_download(self, path)
+        elif (
+            is_magnet(self.link)
+            or self.link.endswith(".torrent")
+            or "torrent" in str(self.link)
+        ):
+            await sendMessage(self.message, "No magnet or torrent allowed!")
+            return
         else:
             ussr = args["-au"]
             pssw = args["-ap"]
