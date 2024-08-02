@@ -390,19 +390,19 @@ bot.add_handler(
 bot.add_handler(
     MessageHandler(
         qb_mirror,
-        filters=command(BotCommands.QbMirrorCommand) & CustomFilters.authorized,
+        filters=command(BotCommands.QbMirrorCommand) & CustomFilters.owner,
     )
 )
 bot.add_handler(
     MessageHandler(
         jd_mirror,
-        filters=command(BotCommands.JdMirrorCommand) & CustomFilters.authorized,
+        filters=command(BotCommands.JdMirrorCommand) & CustomFilters.owner,
     )
 )
 bot.add_handler(
     MessageHandler(
         nzb_mirror,
-        filters=command(BotCommands.NzbMirrorCommand) & CustomFilters.authorized,
+        filters=command(BotCommands.NzbMirrorCommand) & CustomFilters.owner,
     )
 )
 bot.add_handler(
@@ -412,17 +412,17 @@ bot.add_handler(
 )
 bot.add_handler(
     MessageHandler(
-        qb_leech, filters=command(BotCommands.QbLeechCommand) & CustomFilters.authorized
+        qb_leech, filters=command(BotCommands.QbLeechCommand) & CustomFilters.owner
     )
 )
 bot.add_handler(
     MessageHandler(
-        jd_leech, filters=command(BotCommands.JdLeechCommand) & CustomFilters.authorized
+        jd_leech, filters=command(BotCommands.JdLeechCommand) & CustomFilters.owner
     )
 )
 bot.add_handler(
     MessageHandler(
         nzb_leech,
-        filters=command(BotCommands.NzbLeechCommand) & CustomFilters.authorized,
+        filters=command(BotCommands.NzbLeechCommand) & CustomFilters.owner,
     )
 )
