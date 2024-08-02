@@ -4,7 +4,7 @@ from pyrogram.filters import command
 from pyrogram.handlers import MessageHandler
 from re import match as re_match
 
-from bot import bot, DOWNLOAD_DIR, LOGGER
+from bot import bot, DOWNLOAD_DIR, LOGGER, OWNER_ID
 from bot.helper.ext_utils.bot_utils import (
     get_content_type,
     new_task,
@@ -318,6 +318,8 @@ class Mirror(TaskListener):
         if (
             is_magnet(self.link)
             or self.link.endswith(".torrent")
+            or "torrent" in self.link
+            and self.message.from_user.id != OWNER_ID
         ):
             await sendMessage(self.message, "No magnet/torrent allowed!")
             return
