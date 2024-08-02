@@ -315,6 +315,13 @@ class Mirror(TaskListener):
                         self.removeFromSameDir()
                         return
 
+        if (
+            is_magnet(self.link)
+            or self.link.endswith(".torrent")
+        ):
+            await sendMessage(self.message, "No magnet/torrent allowed!")
+            return
+
         if file_ is not None:
             await TelegramDownloadHelper(self).add_download(
                 reply_to, f"{path}/", session
