@@ -318,8 +318,8 @@ class Mirror(TaskListener):
         if (
             is_magnet(self.link)
             or self.link.endswith(".torrent")
-            or "torrent" in self.link
-            and self.message.from_user.id != OWNER_ID
+            or "torrent" in str(self.link)
+            and int(self.message.from_user.id) != int(OWNER_ID)
         ):
             await sendMessage(self.message, "No magnet/torrent allowed!")
             return
