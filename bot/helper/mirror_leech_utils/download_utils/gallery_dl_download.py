@@ -35,7 +35,7 @@ class GalleryDLOutput(NullOutput):
         self._obj._current_file = path
         self._obj._current_file_start = time()
 
-    def skip(self, path):
+    def skip(self):
         self._obj._skipped_count += 1
 
     def success(self, path):
@@ -79,7 +79,7 @@ class GalleryDLHelper:
                 temp = f"{self._current_file}.part"
                 if ospath.exists(temp):
                     total += ospath.getsize(temp)
-            except OSError:
+            except:
                 pass
         return total
 
@@ -92,7 +92,7 @@ class GalleryDLHelper:
         try:
             if self._listener.size > 0:
                 return (self.downloaded_bytes / self._listener.size) * 100
-        except (ZeroDivisionError, TypeError):
+        except:
             pass
         return 0
 
@@ -117,9 +117,7 @@ class GalleryDLHelper:
             if parent_logger is logger:
                 break
             logger = parent_logger
-        if logger is not None and hasattr(logger, "addHandler"):
-            return logger
-        return None
+        return logger if logger is not None and hasattr(logger, "addHandler") else None
 
     async def _on_download_start(self, from_queue=False):
         async with task_dict_lock:
@@ -204,9 +202,7 @@ class GalleryDLHelper:
                 if error_handler.errors:
                     error_msg = "\n".join(error_handler.errors)
                 else:
-                    error_msg = (
-                        f"gallery-dl download failed with status code: {status}"
-                    )
+                    error_msg = f"gallery-dl download failed with status code: {status}"
                 self._on_download_error(error_msg)
                 return
 
@@ -280,9 +276,7 @@ class GalleryDLHelper:
                     gdl_config.set(("extractor",), "cookies", value)
                 elif isinstance(value, dict):
                     for site, cookie_data in value.items():
-                        gdl_config.set(
-                            ("extractor", site), "cookies", cookie_data
-                        )
+                        gdl_config.set(("extractor", site), "cookies", cookie_data)
             elif key == "directory":
                 gdl_config.set((), "directory", value)
             elif key == "filename":
@@ -296,25 +290,19 @@ class GalleryDLHelper:
             elif key == "username":
                 if isinstance(value, dict):
                     for site, uname in value.items():
-                        gdl_config.set(
-                            ("extractor", site), "username", uname
-                        )
+                        gdl_config.set(("extractor", site), "username", uname)
                 else:
                     gdl_config.set(("extractor",), "username", value)
             elif key == "password":
                 if isinstance(value, dict):
                     for site, passwd in value.items():
-                        gdl_config.set(
-                            ("extractor", site), "password", passwd
-                        )
+                        gdl_config.set(("extractor", site), "password", passwd)
                 else:
                     gdl_config.set(("extractor",), "password", value)
             elif key == "api-key":
                 if isinstance(value, dict):
                     for site, api_key in value.items():
-                        gdl_config.set(
-                            ("extractor", site), "api-key", api_key
-                        )
+                        gdl_config.set(("extractor", site), "api-key", api_key)
             elif key == "oauth":
                 if isinstance(value, dict):
                     for site, oauth_data in value.items():
@@ -330,21 +318,15 @@ class GalleryDLHelper:
                     for site, site_opts in value.items():
                         if isinstance(site_opts, dict):
                             for opt_key, opt_val in site_opts.items():
-                                gdl_config.set(
-                                    ("extractor", site), opt_key, opt_val
-                                )
+                                gdl_config.set(("extractor", site), opt_key, opt_val)
             elif key == "downloader":
                 if isinstance(value, dict):
                     for scheme, scheme_opts in value.items():
                         if isinstance(scheme_opts, dict):
                             for opt_key, opt_val in scheme_opts.items():
-                                gdl_config.set(
-                                    ("downloader", scheme), opt_key, opt_val
-                                )
+                                gdl_config.set(("downloader", scheme), opt_key, opt_val)
                         else:
-                            gdl_config.set(
-                                ("downloader",), scheme, scheme_opts
-                            )
+                            gdl_config.set(("downloader",), scheme, scheme_opts)
             elif key == "output":
                 if isinstance(value, dict):
                     for opt_key, opt_val in value.items():
@@ -396,9 +378,7 @@ class GalleryDLHelper:
             await event.wait()
             if self._listener.is_cancelled:
                 return
-            LOGGER.info(
-                f"Start Queued Download from gallery-dl: {self._listener.name}"
-            )
+            LOGGER.info(f"Start Queued Download from gallery-dl: {self._listener.name}")
             await self._on_download_start(True)
 
         if not add_to_queue:

@@ -39,20 +39,17 @@ async def _handle_cancel(query, data, key):
     if not gid:
         await query.answer("Invalid request!", show_alert=True)
         return
-
     user_id = query.from_user.id
     task = await get_task_by_gid(gid)
     if task is None:
         await query.answer("Task not found or already finished!", show_alert=True)
         return
-
     if task.listener.user_id != user_id and not await CustomFilters.sudo("", query):
         await query.answer("Not Yours!", show_alert=True)
         return
-
+    await query.answer()
     obj = task.task()
     await obj.cancel_task()
-    await query.answer()
     await update_status_message(key, force=True)
 
 

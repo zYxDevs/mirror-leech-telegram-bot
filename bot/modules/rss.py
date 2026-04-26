@@ -150,8 +150,7 @@ async def rss_menu(event):
             buttons.data_button("Start Rss", f"rss start {user_id}")
     buttons.data_button("Close", f"rss close {user_id}")
     button = buttons.build_menu(2)
-    chat = Config.RSS_CHAT
-    if chat:
+    if chat := Config.RSS_CHAT:
         if isinstance(chat, int):
             rss_id = chat
         elif "|" in chat:
@@ -773,10 +772,7 @@ Timeout: 60 sec. Argument -c for command and arguments
         chat_id = message.chat.id
         topic_msg = getattr(message, "topic_message", False)
         thread_id = message.message_thread_id if topic_msg else None
-        if thread_id:
-            chat_value = f"{chat_id}|{thread_id}"
-        else:
-            chat_value = str(chat_id)
+        chat_value = f"{chat_id}|{thread_id}" if thread_id else str(chat_id)
         old_value = Config.RSS_CHAT
         Config.set("RSS_CHAT", chat_value)
         await database.update_config({"RSS_CHAT": chat_value})

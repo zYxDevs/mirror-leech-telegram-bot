@@ -3,7 +3,6 @@ from gallery_dl import extractor
 from .. import LOGGER, bot_loop, task_dict_lock, DOWNLOAD_DIR
 from ..core.config_manager import Config
 from ..helper.ext_utils.bot_utils import (
-    new_task,
     sync_to_async,
     arg_parser,
     COMMAND_USAGE,
@@ -117,9 +116,7 @@ class GalleryDL(TaskListener):
         self.thumbnail_layout = args["-tl"]
         self.as_doc = args["-doc"]
         self.as_med = args["-med"]
-        self.folder_name = (
-            f"/{args['-m']}".rstrip("/") if len(args["-m"]) > 0 else ""
-        )
+        self.folder_name = f"/{args['-m']}".rstrip("/") if len(args["-m"]) > 0 else ""
         self.bot_trans = args["-bt"]
         self.user_trans = args["-ut"]
 
@@ -140,9 +137,7 @@ class GalleryDL(TaskListener):
                 if self.folder_name:
                     async with task_dict_lock:
                         if self.folder_name in self.same_dir:
-                            self.same_dir[self.folder_name]["tasks"].add(
-                                self.mid
-                            )
+                            self.same_dir[self.folder_name]["tasks"].add(self.mid)
                             for fd_name in self.same_dir:
                                 if fd_name != self.folder_name:
                                     self.same_dir[fd_name]["total"] -= 1
@@ -177,9 +172,7 @@ class GalleryDL(TaskListener):
         await self.get_tag(text)
 
         opt = (
-            opt
-            or self.user_dict.get("GALLERY_DL_OPTIONS")
-            or Config.GALLERY_DL_OPTIONS
+            opt or self.user_dict.get("GALLERY_DL_OPTIONS") or Config.GALLERY_DL_OPTIONS
         )
 
         if not self.link and (reply_to := self.message.reply_to_message):
@@ -194,7 +187,7 @@ class GalleryDL(TaskListener):
             await self.remove_from_same_dir()
             return
 
-        if not await sync_to_async(_check_gallery_dl_link, self.link):
+        if not _check_gallery_dl_link(self.link):
             await send_message(
                 self.message,
                 f"{self.tag} This link is not supported by gallery-dl.",
@@ -221,6 +214,4 @@ async def gallery_dl(client, message):
 
 
 async def gallery_dl_leech(client, message):
-    bot_loop.create_task(
-        GalleryDL(client, message, is_leech=True).new_event()
-    )
+    bot_loop.create_task(GalleryDL(client, message, is_leech=True).new_event())
