@@ -284,6 +284,23 @@ Here I will explain how to use mltb.* which is reference to files you want to wo
 4. Fourth cmd: the input is mltb.audio so this cmd will work on all audios and the output is mltb.mp3 so the output extension is mp3.
 5. Fifth cmd: You can add telegram link for small size input like photo to set watermark"""
 
+alldebrid_arg = """<b>AllDebrid Unlock</b>: -ad
+
+/cmd link -ad
+Resolves filehost links (1fichier, rapidgator, mega, etc.) via the
+AllDebrid API before handing off to the existing direct downloader.
+Requires <code>ALLDEBRID_API_KEY</code> in the bot configuration."""
+
+buzzheavier_arg = """<b>BuzzHeavier Upload</b>: -bh
+
+/cmd link -bh
+After the download finishes, streams every file to BuzzHeavier instead
+of Telegram/Gdrive/Rclone and posts the resulting URLs in the final
+message. Optionally set <code>BUZZHEAVIER_ACCOUNT_ID</code> in the bot
+configuration to authenticate uploads against your BuzzHeavier
+account; without it the file is uploaded as a guest and expires
+sooner."""
+
 YT_HELP_DICT = {
     "main": yt,
     "New-Name": f"{new_name}\nNote: Don't add file extension",
@@ -359,6 +376,8 @@ MIRROR_HELP_DICT = {
     "Thumb-Layout": thumbnail_layout,
     "Leech-Type": leech_as,
     "FFmpeg-Cmds": ffmpeg_cmds,
+    "AllDebrid": alldebrid_arg,
+    "BuzzHeavier": buzzheavier_arg,
 }
 
 CLONE_HELP_DICT = {

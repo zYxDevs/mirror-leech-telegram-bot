@@ -6,11 +6,13 @@ from bot import LOGGER
 
 
 class Config:
+    ALLDEBRID_API_KEY = ""
     AS_DOCUMENT = False
     AUTHORIZED_CHATS = ""
     BASE_URL = ""
     BASE_URL_PORT = 80
     BOT_TOKEN = ""
+    BUZZHEAVIER_ACCOUNT_ID = ""
     CMD_SUFFIX = ""
     CLONE_DUMP_CHATS = ""
     DATABASE_URL = ""
