@@ -27,6 +27,7 @@ USE_SERVICE_ACCOUNTS = False
 NAME_SUBSTITUTE = r""
 FFMPEG_CMDS = {"merge": ["-f concat -safe 0 -i mltb.txt -c copy mltb.mp4 -del"]}
 UPLOAD_PATHS = {}
+FILES_LINKS = False
 # GDrive Tools
 GDRIVE_ID = ""
 IS_TEAM_DRIVE = False
@@ -79,7 +80,6 @@ HYBRID_LEECH = False
 LEECH_FILENAME_PREFIX = ""
 LEECH_DUMP_CHAT = ""
 CLONE_DUMP_CHATS = ""
-FILES_LINKS = False
 THUMBNAIL_LAYOUT = ""
 # qBittorrent/Aria2c
 TORRENT_TIMEOUT = 0

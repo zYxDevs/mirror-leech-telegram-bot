@@ -6,12 +6,6 @@ from ...ext_utils.status_utils import (
 
 
 class BuzzHeavierStatus:
-    """Status reporter for an in-flight BuzzHeavier upload.
-
-    Mirrors :class:`TelegramStatus` so the existing status renderer in
-    ``bot/helper/ext_utils/status_utils.py`` can display BuzzHeavier
-    progress without any special-casing.
-    """
 
     def __init__(self, listener, obj, gid, status):
         self.listener = listener

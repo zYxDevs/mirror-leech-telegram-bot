@@ -96,13 +96,15 @@ Note: Only mb and gb are supported or write in bytes without unit!"""
 
 upload = """<b>Upload Destination</b>: -up
 
-/cmd link -up rcl/gdl (rcl: to select rclone config, remote & path | gdl: To select token.pickle, gdrive id) using buttons
+/cmd link -up rc/gd/rcl/gdl/bh (rcl: to select rclone config, remote & path | gdl: To select token.pickle, gdrive id) using buttons
 You can directly add the upload path: -up remote:dir/subdir or -up Gdrive_id or -up id/username (telegram) or -up id/username|topic_id (telegram)
 If DEFAULT_UPLOAD is `rc` then you can pass up: `gd` to upload using gdrive tools to GDRIVE_ID.
 If DEFAULT_UPLOAD is `gd` then you can pass up: `rc` to upload to RCLONE_PATH.
+If DEFAULT_UPLOAD is `bh` then you can pass up: `rc` to upload to RCLONE_PATH.
+If DEFAULT_UPLOAD is `gd` then you can pass up: `bh` to upload to BUZZHEAVIER.
 
 If you want to add path or gdrive manually from your config/token (UPLOADED FROM USETTING) add mrcc: for rclone and mtp: before the path/gdrive_id without space.
-/cmd link -up mrcc:main:dump or -up mtp:gdrive_id <strong>or you can simply edit upload using owner/user token/config from usetting without adding mtp: or mrcc: before the upload path/id</strong>
+/cmd link -up mrcc:main:dump or -up mtp:gdrive_id <strong>OR you can simply edit upload using owner/user|token/config from usetting without adding mtp: or mrcc: before the upload path/id</strong>
 
 To add leech destination:
 -up id/@username/pm
@@ -298,16 +300,6 @@ entirely so dead torrents finish faster on a debrid plan.
 
 Requires <code>ALLDEBRID_API_KEY</code> in the bot configuration."""
 
-buzzheavier_arg = """<b>BuzzHeavier Upload</b>: -bh
-
-/cmd link -bh
-After the download finishes, streams every file to BuzzHeavier instead
-of Telegram/Gdrive/Rclone and posts the resulting URLs in the final
-message. Optionally set <code>BUZZHEAVIER_ACCOUNT_ID</code> in the bot
-configuration to authenticate uploads against your BuzzHeavier
-account; without it the file is uploaded as a guest and expires
-sooner."""
-
 YT_HELP_DICT = {
     "main": yt,
     "New-Name": f"{new_name}\nNote: Don't add file extension",
@@ -384,7 +376,6 @@ MIRROR_HELP_DICT = {
     "Leech-Type": leech_as,
     "FFmpeg-Cmds": ffmpeg_cmds,
     "AllDebrid": alldebrid_arg,
-    "BuzzHeavier": buzzheavier_arg,
 }
 
 CLONE_HELP_DICT = {

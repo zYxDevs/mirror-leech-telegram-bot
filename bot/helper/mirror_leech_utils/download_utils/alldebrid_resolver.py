@@ -31,7 +31,6 @@ from bot import LOGGER
 from bot.core.config_manager import Config
 from bot.helper.ext_utils.exceptions import DirectDownloadLinkException
 
-
 _API_BASE = "https://api.alldebrid.com/v4.1"
 _API_BASE_V4 = "https://api.alldebrid.com/v4"
 _AGENT = "mltb"
@@ -148,12 +147,10 @@ async def _call_api(
 
 
 def _ensure_api_key() -> str:
-    api_key = (Config.ALLDEBRID_API_KEY or "").strip()
-    if not api_key:
-        raise DirectDownloadLinkException(
-            "ERROR: ALLDEBRID_API_KEY is not configured"
-        )
-    return api_key
+    if api_key := (Config.ALLDEBRID_API_KEY or "").strip():
+        return api_key
+    else:
+        raise DirectDownloadLinkException("ERROR: ALLDEBRID_API_KEY is not configured")
 
 
 def _basename_from_url(link: str) -> str:
@@ -191,23 +188,21 @@ async def alldebrid_resolve(link: str) -> str | dict[str, Any]:
         LOGGER.info(f"AllDebrid unlocked {link[:80]} -> {direct[:80]}...")
         return direct
 
-    # Some hosts (notably mega folders) return a list of children
-    # rather than a single ``link``. Fall back to ``infos`` to enumerate.
-    contents: list[dict[str, Any]] = []
     if isinstance(streams, list) and streams:
+        # Some hosts (notably mega folders) return a list of children
+        # rather than a single ``link``. Fall back to ``infos`` to enumerate.
+        contents: list[dict[str, Any]] = []
         for entry in streams:
-            stream_url = entry.get("link") or entry.get("url")
-            if not stream_url:
-                continue
-            contents.append(
-                {
-                    "filename": entry.get("filename") or filename,
-                    "path": entry.get("filename") or filename,
-                    "url": stream_url,
-                    "size": int(entry.get("filesize") or 0),
-                    "headers": {},
-                }
-            )
+            if stream_url := entry.get("link") or entry.get("url"):
+                contents.append(
+                    {
+                        "filename": entry.get("filename") or filename,
+                        "path": entry.get("filename") or filename,
+                        "url": stream_url,
+                        "size": int(entry.get("filesize") or 0),
+                        "headers": {},
+                    }
+                )
         if contents:
             return {
                 "contents": contents,
@@ -257,7 +252,7 @@ async def alldebrid_check_supported(link: str) -> bool:
             continue
         for host_domain in host_info.get("domains") or []:
             host_domain = str(host_domain).lower()
-            if domain == host_domain or domain.endswith("." + host_domain):
+            if domain == host_domain or domain.endswith(f".{host_domain}"):
                 return True
     return False
 
@@ -270,10 +265,9 @@ def _extract_infohash(magnet: str) -> str:
     try:
         params = urllib.parse.parse_qs(urllib.parse.urlparse(magnet).query)
         for xt in params.get("xt", []):
-            match = re.match(r"urn:btih:([A-Za-z0-9]+)", xt, flags=re.I)
-            if match:
-                return match.group(1).lower()
-    except Exception:
+            if match := re.match(r"urn:btih:([A-Za-z0-9]+)", xt, flags=re.I):
+                return match[1].lower()
+    except:
         pass
     return ""
 
@@ -286,7 +280,7 @@ def _canonicalize_magnet(magnet: str) -> str:
     try:
         params = urllib.parse.parse_qs(urllib.parse.urlparse(magnet).query)
         dn = params.get("dn", [""])[0]
-    except Exception:
+    except:
         dn = ""
     canonical = f"magnet:?xt=urn:btih:{infohash}"
     if dn:
@@ -379,8 +373,7 @@ async def upload_magnet(magnet: str) -> dict[str, Any]:
             last_error = exc
             text = str(exc)
             retryable = any(
-                code in text
-                for code in ("MAGNET_INVALID_FILE", "MAGNET_INVALID_URI")
+                code in text for code in ("MAGNET_INVALID_FILE", "MAGNET_INVALID_URI")
             )
             if idx < len(candidates) and retryable:
                 LOGGER.warning(
@@ -412,9 +405,7 @@ async def upload_torrent(torrent_bytes: bytes, filename: str) -> dict[str, Any]:
     )
     items = data.get("files") or []
     if not items:
-        raise DirectDownloadLinkException(
-            "ERROR: AllDebrid returned no torrent data"
-        )
+        raise DirectDownloadLinkException("ERROR: AllDebrid returned no torrent data")
     entry = items[0]
     if "error" in entry:
         raise DirectDownloadLinkException(
@@ -439,7 +430,7 @@ async def get_magnet_status(magnet_id: int) -> dict[str, Any]:
     if isinstance(magnets, list):
         return magnets[0]
     raise DirectDownloadLinkException(
-        f"ERROR: AllDebrid returned unexpected magnet status payload"
+        "ERROR: AllDebrid returned unexpected magnet status payload"
     )
 
 
@@ -530,9 +521,7 @@ async def _resolve_unlocked_files(
                     {"unlock_done": index + 1, "unlock_total": len(raw_files)}
                 )
 
-    await asyncio.gather(
-        *(_unlock(idx, entry) for idx, entry in enumerate(raw_files))
-    )
+    await asyncio.gather(*(_unlock(idx, entry) for idx, entry in enumerate(raw_files)))
 
     return [entry for entry in resolved if entry is not None]
 
@@ -564,9 +553,7 @@ async def alldebrid_resolve_magnet(
     entry = await upload_magnet(magnet)
     magnet_id = int(entry.get("id") or 0)
     if not magnet_id:
-        raise DirectDownloadLinkException(
-            "ERROR: AllDebrid did not return a magnet id"
-        )
+        raise DirectDownloadLinkException("ERROR: AllDebrid did not return a magnet id")
 
     name = entry.get("name") or _basename_from_url(magnet) or "torrent"
 
@@ -642,11 +629,11 @@ async def alldebrid_resolve_magnet(
             "contents": resolved,
         }
 
-    except Exception:
+    except:
         # Best-effort cleanup; do NOT shadow the original exception.
         try:
             await delete_magnet(magnet_id)
-        except Exception:
+        except:
             pass
         raise
 
@@ -742,9 +729,9 @@ async def alldebrid_resolve_torrent(
             "total_size": total_size,
             "contents": resolved,
         }
-    except Exception:
+    except:
         try:
             await delete_magnet(magnet_id)
-        except Exception:
+        except:
             pass
         raise

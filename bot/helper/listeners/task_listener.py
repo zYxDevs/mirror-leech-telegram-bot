@@ -185,7 +185,7 @@ class TaskListener(TaskConfig):
 
         if not await aiopath.exists(up_path):
             e = "No files to upload. In case you have filled EXCLUDED/INCLUDED EXTENSIONS, then check if all files have those extensions or not."
-            await self.on_upload_error(str(e))
+            await self.on_upload_error(e)
             return
 
         if not Config.QUEUE_ALL:
@@ -346,7 +346,7 @@ class TaskListener(TaskConfig):
             await database.rm_complete_task(self.message.link)
         msg = f"<b>Name: </b><code>{escape(self.name)}</code>\n\n<b>Size: </b>{get_readable_file_size(self.size)}"
         LOGGER.info(f"Task Done: {self.name}")
-        if self.is_leech:
+        if self.is_leech or self.is_buzzheavier:
             msg += f"\n<b>Total Files: </b>{folders}"
             if mime_type != 0:
                 msg += f"\n<b>Corrupted Files: </b>{mime_type}"
@@ -433,17 +433,14 @@ class TaskListener(TaskConfig):
                 del task_dict[self.mid]
             count = len(task_dict)
         await self.remove_from_same_dir()
-        # Best-effort: release the AllDebrid magnet so it does not
-        # linger in the user's history if the task aborts mid-flight.
-        magnet_id = getattr(self, "_alldebrid_magnet_id", 0) or 0
-        if magnet_id:
+        if magnet_id := getattr(self, "_alldebrid_magnet_id", 0) or 0:
             try:
                 from ..mirror_leech_utils.download_utils.alldebrid_resolver import (
                     delete_magnet,
                 )
 
                 await delete_magnet(magnet_id)
-            except Exception:
+            except:
                 pass
             self._alldebrid_magnet_id = 0
         msg = f"{self.tag} Download: {escape(str(error))}"

@@ -100,7 +100,6 @@ class Mirror(TaskListener):
             "-bt": False,
             "-ut": False,
             "-ad": False,
-            "-bh": False,
             "-i": 0,
             "-sp": 0,
             "link": "",
@@ -148,7 +147,6 @@ class Mirror(TaskListener):
         self.bot_trans = args["-bt"]
         self.user_trans = args["-ut"]
         self.is_alldebrid = args["-ad"]
-        self.is_buzzheavier = args["-bh"]
         self.ffmpeg_cmds = args["-ff"]
 
         headers = args["-h"]
@@ -313,10 +311,6 @@ class Mirror(TaskListener):
             await self.remove_from_same_dir()
             return
 
-        # AllDebrid magnet / torrent path takes precedence over the
-        # default aria2 / qbit / jd routing when ``-ad`` is set so the
-        # user does not have to fight with DEFAULT_UPLOAD or pick the
-        # right downloader manually.
         if self.is_alldebrid and (
             is_magnet(self.link) or self.link.endswith(".torrent")
         ):
@@ -351,10 +345,8 @@ class Mirror(TaskListener):
             if isinstance(resolved, dict):
                 self._alldebrid_magnet_id = resolved.get("magnet_id", 0)
                 self.link = resolved
-                # Drop torrent-specific routing flags so the dispatcher
-                # picks ``add_direct_download``.
-                self.is_qbit = False
                 self.is_jd = False
+                self.is_qbit = False
 
         if (
             not self.is_jd
@@ -374,7 +366,6 @@ class Mirror(TaskListener):
                         self.link = resolved
                         LOGGER.info(f"AllDebrid link: {self.link}")
                     else:
-                        # multi-file payload routed through add_direct_download
                         self.link = resolved
                 except DirectDownloadLinkException as e:
                     msg = str(e)
@@ -390,9 +381,13 @@ class Mirror(TaskListener):
 
             if isinstance(self.link, str):
                 content_type = await get_content_type(self.link)
-                if content_type is None or re_match(r"text/html|text/plain", content_type):
+                if content_type is None or re_match(
+                    r"text/html|text/plain", content_type
+                ):
                     try:
-                        self.link = await sync_to_async(direct_link_generator, self.link)
+                        self.link = await sync_to_async(
+                            direct_link_generator, self.link
+                        )
                         if isinstance(self.link, tuple):
                             self.link, headers = self.link
                         elif isinstance(self.link, str):

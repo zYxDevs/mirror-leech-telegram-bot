@@ -304,6 +304,8 @@ Fill up rest of the fields. Meaning of each field is discussed below.
 
 - `STATUS_LIMIT` (`Int`): Limit the no. of tasks shown in status message with buttons. Default is `4`. **NOTE**: Recommended limit is `4` tasks.
 
+- `FILES_LINKS` (`Bool`): Enable files link after Leech or BuzzHeavier upload complete, those link(s) will be sent in the same chat where you sent the cmd. Default is `False`.
+
 - `EXCLUDED_EXTENSIONS` (`Str`): File extensions that won't upload/clone. Separate them by spaces.
 
 - `INCLUDED_EXTENSIONS` (`Str`): File extensions to be uploaded/cloned. `EXCLUDED_EXTENSIONS` will be ignored if you filled this! Separate them by spaces.
@@ -322,6 +324,10 @@ options [HERE](https://github.com/yt-dlp/yt-dlp/blob/master/yt_dlp/YoutubeDL.py#
   - Example: {"format": "bv*+mergeall[vcodec=none]", "nocheckcertificate": True, "playliststart": 10, "fragment_retries": float("inf"), "matchtitle": "S13", "writesubtitles": True, "live_from_start": True, "postprocessor_args": {"ffmpeg": ["-threads", "4"]}, "wait_for_video": (5, 100), "download_ranges": [{"start_time": 0, "end_time": 10}]}
 
 - `GALLERY_DL_OPTIONS` (`Dict`): Dict of gallery-dl options. Supports custom gallery-dl options globally, per user, and per task. Format: {key: value, key: value}.
+
+- `ALLDEBRID_API_KEY` (`Str`): Alldebrid api key.
+
+- `BUZZHEAVIER_ACCOUNT_ID` (`Str`): Buzzheavier account ID.
 
 - `USE_SERVICE_ACCOUNTS` (`Bool`): Whether to use Service Accounts or not, with google-api-python-client. For this to work
 see [Using Service Accounts](https://github.com/anasty17/mirror-leech-telegram-bot#generate-service-accounts-what-is-service-account) section below. Default is `False`.
@@ -405,8 +411,6 @@ see [Using Service Accounts](https://github.com/anasty17/mirror-leech-telegram-b
 - `CLONE_DUMP_CHATS` (`List`|`Int`|`Str`): LIST of ID|USERNAME or ID or USERNAME or PM(private message) to where files would be cloned. Add `-100` before channel/superGroup id. To use only specific topic write it in this format `chat_id|thread_id`. Ex: ["pm", -100xxxx555, "@username", "@username|8", "-100xxx8886|2"] or -100xxx5555 or "-100xx555566|6" or "@username" or "pm". **Note**: Add `chat_id` inside `quotation marks` only if you will add thread_id with it.
 
 - `THUMBNAIL_LAYOUT` (`Str`): Thumbnail layout (widthxheight, 2x2, 3x3, 2x4, 4x4, ...) of how many photo arranged for the thumbnail.
-
-- `FILES_LINKS` (`Bool`): Enable files link after leech complete, those link(s) will be sent in the same chat where you sent the leech cmd. Default is `False`.
 
 **7. qBittorrent/Aria2c/Sabnzbd**
 
