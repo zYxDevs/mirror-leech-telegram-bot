@@ -1,5 +1,7 @@
+from aiofiles import open as aiopen
 from aiofiles.os import path as aiopath
 from base64 import b64encode
+from os.path import basename as ospath_basename
 from re import match as re_match
 
 from .. import LOGGER, bot_loop, task_dict_lock, DOWNLOAD_DIR
@@ -24,6 +26,8 @@ from ..helper.mirror_leech_utils.download_utils.aria2_download import (
 )
 from ..helper.mirror_leech_utils.download_utils.alldebrid_resolver import (
     alldebrid_resolve,
+    alldebrid_resolve_magnet,
+    alldebrid_resolve_torrent,
 )
 from ..helper.mirror_leech_utils.download_utils.direct_downloader import (
     add_direct_download,
@@ -309,6 +313,49 @@ class Mirror(TaskListener):
             await self.remove_from_same_dir()
             return
 
+        # AllDebrid magnet / torrent path takes precedence over the
+        # default aria2 / qbit / jd routing when ``-ad`` is set so the
+        # user does not have to fight with DEFAULT_UPLOAD or pick the
+        # right downloader manually.
+        if self.is_alldebrid and (
+            is_magnet(self.link) or self.link.endswith(".torrent")
+        ):
+            try:
+                if is_magnet(self.link):
+                    LOGGER.info("AllDebrid magnet route")
+                    resolved = await alldebrid_resolve_magnet(
+                        self.link,
+                        is_cancelled=lambda: self.is_cancelled,
+                    )
+                else:
+                    LOGGER.info(f"AllDebrid torrent file route: {self.link}")
+                    async with aiopen(self.link, "rb") as fh:
+                        torrent_bytes = await fh.read()
+                    resolved = await alldebrid_resolve_torrent(
+                        torrent_bytes,
+                        ospath_basename(self.link),
+                        is_cancelled=lambda: self.is_cancelled,
+                    )
+            except DirectDownloadLinkException as e:
+                msg = str(e)
+                LOGGER.info(msg)
+                if msg.startswith("ERROR:"):
+                    await send_message(self.message, msg)
+                    await self.remove_from_same_dir()
+                    return
+                resolved = None
+            except Exception as e:
+                await send_message(self.message, e)
+                await self.remove_from_same_dir()
+                return
+            if isinstance(resolved, dict):
+                self._alldebrid_magnet_id = resolved.get("magnet_id", 0)
+                self.link = resolved
+                # Drop torrent-specific routing flags so the dispatcher
+                # picks ``add_direct_download``.
+                self.is_qbit = False
+                self.is_jd = False
+
         if (
             not self.is_jd
             and not self.is_nzb
@@ -320,7 +367,7 @@ class Mirror(TaskListener):
             and file_ is None
             and not is_gdrive_id(self.link)
         ):
-            if self.is_alldebrid and self.link:
+            if self.is_alldebrid and isinstance(self.link, str) and self.link:
                 try:
                     resolved = await alldebrid_resolve(self.link)
                     if isinstance(resolved, str):

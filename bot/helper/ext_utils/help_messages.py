@@ -289,6 +289,13 @@ alldebrid_arg = """<b>AllDebrid Unlock</b>: -ad
 /cmd link -ad
 Resolves filehost links (1fichier, rapidgator, mega, etc.) via the
 AllDebrid API before handing off to the existing direct downloader.
+
+Magnet/torrent inputs are also routed through AllDebrid when ``-ad``
+is set: the bot uploads the magnet (or replied <code>.torrent</code>
+file), waits for AllDebrid to finish torrenting, then downloads each
+file directly from AllDebrid CDNs. This bypasses aria2/qBittorrent
+entirely so dead torrents finish faster on a debrid plan.
+
 Requires <code>ALLDEBRID_API_KEY</code> in the bot configuration."""
 
 buzzheavier_arg = """<b>BuzzHeavier Upload</b>: -bh
