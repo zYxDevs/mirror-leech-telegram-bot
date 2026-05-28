@@ -36,10 +36,12 @@ from ..ext_utils.status_utils import get_readable_file_size
 from ..ext_utils.task_manager import start_from_queued, check_running_tasks
 from ..mirror_leech_utils.gdrive_utils.upload import GoogleDriveUpload
 from ..mirror_leech_utils.rclone_utils.transfer import RcloneTransferHelper
+from ..mirror_leech_utils.buzzheavier_uploader import BuzzHeavierUploader
 from ..mirror_leech_utils.status_utils.gdrive_status import GoogleDriveStatus
 from ..mirror_leech_utils.status_utils.queue_status import QueueStatus
 from ..mirror_leech_utils.status_utils.rclone_status import RcloneStatus
 from ..mirror_leech_utils.status_utils.telegram_status import TelegramStatus
+from ..mirror_leech_utils.status_utils.buzzheavier_status import BuzzHeavierStatus
 from ..mirror_leech_utils.telegram_uploader import TelegramUploader
 from ..telegram_helper.button_build import ButtonMaker
 from ..telegram_helper.message_utils import (
@@ -301,6 +303,16 @@ class TaskListener(TaskConfig):
                 tg.upload(),
             )
             del tg
+        elif self.is_buzzheavier:
+            LOGGER.info(f"BuzzHeavier Upload Name: {self.name}")
+            bh = BuzzHeavierUploader(self, up_path)
+            async with task_dict_lock:
+                task_dict[self.mid] = BuzzHeavierStatus(self, bh, gid, "up")
+            await gather(
+                update_status_message(self.message.chat.id),
+                bh.upload(),
+            )
+            del bh
         elif is_gdrive_id(self.up_dest):
             LOGGER.info(f"Gdrive Upload Name: {self.name}")
             drive = GoogleDriveUpload(self, up_path)
@@ -421,6 +433,19 @@ class TaskListener(TaskConfig):
                 del task_dict[self.mid]
             count = len(task_dict)
         await self.remove_from_same_dir()
+        # Best-effort: release the AllDebrid magnet so it does not
+        # linger in the user's history if the task aborts mid-flight.
+        magnet_id = getattr(self, "_alldebrid_magnet_id", 0) or 0
+        if magnet_id:
+            try:
+                from ..mirror_leech_utils.download_utils.alldebrid_resolver import (
+                    delete_magnet,
+                )
+
+                await delete_magnet(magnet_id)
+            except Exception:
+                pass
+            self._alldebrid_magnet_id = 0
         msg = f"{self.tag} Download: {escape(str(error))}"
         await send_message(self.message, msg, button)
         if count == 0:
