@@ -146,7 +146,7 @@ class BuzzHeavierUploader:
         if self._listener.is_cancelled:
             return
         LOGGER.info(
-            f"Uploaded To BuzzHeavier: {self.listener.name} - {total_files - corrupted} files"
+            f"Uploaded To BuzzHeavier: {self._listener.name} - {total_files - corrupted} files"
         )
         await self._listener.on_upload_complete(
             None,
