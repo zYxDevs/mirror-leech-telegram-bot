@@ -13,6 +13,7 @@ class Config:
     BASE_URL_PORT = 80
     BOT_TOKEN = ""
     BUZZHEAVIER_ACCOUNT_ID = ""
+    GOFILE_API_KEY = ""
     CMD_SUFFIX = ""
     CLONE_DUMP_CHATS = ""
     DATABASE_URL = ""
@@ -155,7 +156,7 @@ class Config:
         if isinstance(converted_value, str):
             converted_value = converted_value.strip()
 
-        if attr == "DEFAULT_UPLOAD" and converted_value != "gd":
+        if attr == "DEFAULT_UPLOAD" and converted_value not in {"gd", "bh", "gf"}:
             return "rc"
 
         if attr in {

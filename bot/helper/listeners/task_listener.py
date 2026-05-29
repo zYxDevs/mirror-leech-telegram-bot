@@ -37,11 +37,13 @@ from ..ext_utils.task_manager import start_from_queued, check_running_tasks
 from ..mirror_leech_utils.gdrive_utils.upload import GoogleDriveUpload
 from ..mirror_leech_utils.rclone_utils.transfer import RcloneTransferHelper
 from ..mirror_leech_utils.buzzheavier_uploader import BuzzHeavierUploader
+from ..mirror_leech_utils.gofile_uploader import GoFileUploader
 from ..mirror_leech_utils.status_utils.gdrive_status import GoogleDriveStatus
 from ..mirror_leech_utils.status_utils.queue_status import QueueStatus
 from ..mirror_leech_utils.status_utils.rclone_status import RcloneStatus
 from ..mirror_leech_utils.status_utils.telegram_status import TelegramStatus
 from ..mirror_leech_utils.status_utils.buzzheavier_status import BuzzHeavierStatus
+from ..mirror_leech_utils.status_utils.gofile_status import GoFileStatus
 from ..mirror_leech_utils.telegram_uploader import TelegramUploader
 from ..telegram_helper.button_build import ButtonMaker
 from ..telegram_helper.message_utils import (
@@ -313,6 +315,16 @@ class TaskListener(TaskConfig):
                 bh.upload(),
             )
             del bh
+        elif self.is_gofile:
+            LOGGER.info(f"GoFile Upload Name: {self.name}")
+            gf = GoFileUploader(self, up_path)
+            async with task_dict_lock:
+                task_dict[self.mid] = GoFileStatus(self, gf, gid, "up")
+            await gather(
+                update_status_message(self.message.chat.id),
+                gf.upload(),
+            )
+            del gf
         elif is_gdrive_id(self.up_dest):
             LOGGER.info(f"Gdrive Upload Name: {self.name}")
             drive = GoogleDriveUpload(self, up_path)
