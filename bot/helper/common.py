@@ -97,6 +97,7 @@ class TaskConfig:
         self.is_gallerydl = False
         self.is_alldebrid = False
         self.is_buzzheavier = False
+        self.is_gofile = False
         self.equal_splits = False
         self.user_transmission = False
         self.hybrid_leech = False
@@ -275,12 +276,14 @@ class TaskConfig:
         )
         if default_upload == "bh" or self.up_dest == "bh":
             self.is_buzzheavier = True
+        elif default_upload == "gf" or self.up_dest == "gf":
+            self.is_gofile = True
 
         self.files_links = self.user_dict.get("FILES_LINKS", False) or (
             Config.FILES_LINKS if "FILES_LINKS" not in self.user_dict else False
         )
 
-        if not self.is_leech and not self.is_buzzheavier:
+        if not self.is_leech and not self.is_buzzheavier and not self.is_gofile:
             self.stop_duplicate = (
                 self.user_dict.get("STOP_DUPLICATE")
                 or "STOP_DUPLICATE" not in self.user_dict
@@ -345,7 +348,7 @@ class TaskConfig:
                     self.link
                 ) != self.get_config_path(self.up_dest):
                     raise ValueError("You must use the same config to clone!")
-        elif not self.is_buzzheavier:
+        elif not self.is_buzzheavier and not self.is_gofile:
             self.up_dest = (
                 self.up_dest
                 or self.user_dict.get("LEECH_DUMP_CHAT")
